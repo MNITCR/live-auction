@@ -3,10 +3,12 @@ import { useLocation } from "react-router-dom";
 
 // design
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import { IoSearchOutline } from "react-icons/io5";
 import { Container, CustomNavLink, CustomNavLinkList, ProfileCard } from "../../router";
 import { User1 } from "../hero/Hero";
 import { menulists } from "../../utils/data";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { IoMdNotificationsOutline } from "react-icons/io";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,10 +43,12 @@ export const Header = () => {
   // Check if it's the home page
   const isHomePage = location.pathname === "/";
 
-  const role = "buyer";
+  const role = localStorage.getItem("role");
+  const user_id = localStorage.getItem("user_id");
   return (
     <>
       <header className={isHomePage ? `header py-1 bg-primary ${isScrolled ? "scrolled" : ""}` : `header bg-white shadow-s1 ${isScrolled ? "scrolled" : ""}`}>
+        <ToastContainer />
         <Container>
           <nav className="p-4 flex justify-between items-center relative">
             <div className="flex items-center gap-14">
@@ -67,18 +71,21 @@ export const Header = () => {
             </div>
             <div className="flex items-center gap-8 icons">
               <div className="hidden lg:flex lg:items-center lg:gap-8">
-                <IoSearchOutline size={23} className={`${isScrolled || !isHomePage ? "text-black" : "text-white"}`} />
+                <IoMdNotificationsOutline  size={25} className={`${isScrolled || !isHomePage ? "text-black" : "text-white"}`} />
                 {role === "buyer" && (
                   <CustomNavLink href="/seller/login" className={`${isScrolled || !isHomePage ? "text-black" : "text-white"}`}>
                     Become a Seller
                   </CustomNavLink>
                 )}
-                <CustomNavLink href="/login" className={`${isScrolled || !isHomePage ? "text-black" : "text-white"}`}>
-                  Sign in
-                </CustomNavLink>
-                <CustomNavLink href="/register" className={`${!isHomePage || isScrolled ? "bg-green" : "bg-white"} px-8 py-2 rounded-full text-primary shadow-md`}>
-                  Join
-                </CustomNavLink>
+                {!user_id ? (<>
+                  <CustomNavLink href="/login" className={`${isScrolled || !isHomePage ? "text-black" : "text-white"}`}>
+                    Sign in
+                  </CustomNavLink>
+                  <CustomNavLink href="/register" className={`${!isHomePage || isScrolled ? "bg-green" : "bg-white"} px-8 py-2 rounded-full text-primary shadow-md`}>
+                    Join
+                  </CustomNavLink>
+                  </>) : ""
+                  }
                 <CustomNavLink href="/dashboard">
                   <ProfileCard>
                     <img src={User1} alt="" className="w-full h-full object-cover" />

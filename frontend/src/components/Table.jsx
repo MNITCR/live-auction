@@ -2,8 +2,65 @@ import { TiEyeOutline } from "react-icons/ti";
 import { CiEdit } from "react-icons/ci";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export const Table = () => {
+  const [formData, setFormData] = useState([]);
+  const role = localStorage.getItem("role");
+
+  const getProduct = useCallback(async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/api/get_product_list_with_bid`
+      );
+      const filteredProducts = data.filter(
+        (product) => role !== "admin" || product.user !== 7
+      );
+      setFormData(filteredProducts);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  },[role]);
+  useEffect(() => {
+    getProduct();
+  },[getProduct]);
+
+  const handleDeleteProduct = async (e, product_id) => {
+    e.preventDefault();
+    if (window.confirm("Do you want to delete this product?")) {
+      try {
+        const { data, status } = await axios.delete(
+          `${process.env.REACT_APP_BASE_URL}/api/products/${product_id}`
+        );
+        if (status === 200) {
+          toast.success(data.message);
+          getProduct();
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.error);
+      }
+    }
+  };
+
+  const soldProductWithHeightBid = async (e, product_id) => {
+    e.preventDefault();
+    if (window.confirm("Do you want to sold out?")) {
+      try {
+        const { data, status } = await axios.put(
+          `${process.env.REACT_APP_BASE_URL}/api/product_sold/${product_id}`
+        );
+        if (status === 200) {
+          toast.success(data.message);
+          getProduct();
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.error);
+      }
+    }
+  };
+
   return (
     <>
       <div className="relative overflow-x-auto rounded-lg">
@@ -11,19 +68,28 @@ export const Table = () => {
           <thead className="text-xs text-gray-700 uppercase bg-gray-100">
             <tr>
               <th scope="col" className="px-6 py-5">
+                S.N
+              </th>
+              <th scope="col" className="px-6 py-5">
                 Title
               </th>
               <th scope="col" className="px-6 py-3">
-                Bidding ID
+                Commission
               </th>
               <th scope="col" className="px-6 py-3">
-                Bid Amount(USD)
+                Price
+              </th>
+              <th scope="col" className="px-6 py-3 text-nowrap">
+                Bid Amount
               </th>
               <th scope="col" className="px-6 py-3">
                 Image
               </th>
               <th scope="col" className="px-6 py-3">
-                Status
+                Verify
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Sold
               </th>
               <th scope="col" className="px-6 py-3">
                 Action
@@ -31,30 +97,69 @@ export const Table = () => {
             </tr>
           </thead>
           <tbody>
-            <tr className="bg-white border-b hover:bg-gray-50">
-              <td className="px-6 py-4">Auction Title 01</td>
-              <td className="px-6 py-4">Bidding_HvO253gT</td>
-              <td className="px-6 py-4">1222.8955</td>
-              <td className="px-6 py-4">
-                <img className="w-10 h-10" src="https://bidout-react.vercel.app/images/bg/order1.png" alt="Jeseimage" />
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <div className="h-2.5 w-2.5 rounded-full bg-green me-2"></div> Success
-                </div>
-              </td>
-              <td className="px-6 py-4 text-center flex items-center gap-3 mt-1">
-                <NavLink to="#" type="button" className="font-medium text-indigo-500">
-                  <TiEyeOutline size={25} />
-                </NavLink>
-                <NavLink to="/update-product" type="button" className="font-medium text-green">
-                  <CiEdit size={25} />
-                </NavLink>
-                <button className="font-medium text-red-500">
-                  <MdOutlineDeleteOutline size={25} />
-                </button>
-              </td>
-            </tr>
+            {formData.map((data, index) => (
+              <tr
+                key={index}
+                className={`bg-white border-b hover:bg-gray-50`}
+              >
+                <td className="px-6 py-4">{index + 1}</td>
+                <td className="px-6 py-4">{data.title}</td>
+                <td className="px-6 py-4">{data.commission}</td>
+                <td className="px-6 py-4">{data.price}</td>
+                <td className="px-6 py-4">{data.total_bids}</td>
+                <td className="px-6 py-4">
+                  <img
+                    className="w-10 h-10"
+                    src={data.image}
+                    alt={data.title}
+                  />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full ${
+                        data.isverify ? "bg-green" : "bg-red-500"
+                      } me-2`}
+                    ></div>{" "}
+                    {data.isverify ? "Yes" : "No"}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <button
+                    type="submit"
+                    disabled={data.is_soldout}
+                    onClick={(e) => soldProductWithHeightBid(e, data.id)}
+                    className={`text-nowrap text-center py-[1px] px-[10px] text-[11px] text-white rounded-lg ${
+                      data.is_soldout ? "bg-red-500" : "bg-green"
+                    }`}
+                  >
+                    {data.is_soldout ? "Sold Out" : "Sell"}
+                  </button>
+                </td>
+                <td className="px-6 py-4 text-center flex items-center gap-3 mt-1">
+                  <NavLink
+                    to={`./view/${data.id}`}
+                    type="button"
+                    className="font-medium text-indigo-500"
+                  >
+                    <TiEyeOutline size={25} />
+                  </NavLink>
+                  <NavLink
+                    to={`./update/${data.id}`}
+                    type="button"
+                    className="font-medium text-green"
+                  >
+                    <CiEdit size={25} />
+                  </NavLink>
+                  <button
+                    className="font-medium text-red-500"
+                    onClick={(e) => handleDeleteProduct(e, data.id)}
+                  >
+                    <MdOutlineDeleteOutline size={25} />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

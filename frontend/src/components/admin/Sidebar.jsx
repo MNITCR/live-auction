@@ -10,31 +10,68 @@ import { CgProductHunt } from "react-icons/cg";
 import { TbCurrencyDollar } from "react-icons/tb";
 import { FiUser } from "react-icons/fi";
 import { FaPlusCircle } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export const Sidebar = () => {
+  const[formData, setFormData] = useState({
+    name: "",
+    email: "",
+    profile_picture: "",
+  });
+  const id = localStorage.getItem("user_id");
   const location = useLocation();
-
-  const role = "admin";
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    if(window.confirm("Are you sure to logout?")){
+      localStorage.clear();
+      sessionStorage.clear();
+      navigate("/login");
+    }
+  };
+  const role = localStorage.getItem("role");
   const className = "flex items-center gap-3 mb-2 p-4 rounded-full";
+
+  useEffect(() => {
+      if (id) {
+        const fetchUserData = async () => {
+          try {
+            const { data } = await axios.get(
+              `${process.env.REACT_APP_BASE_URL}/api/users/${id}`
+            );
+            setFormData({
+              name: data.name || "",
+              email: data.email || "",
+              profile_picture: data.photo || "",
+            });
+          } catch (error) {
+            toast.error(
+              error.response?.data?.error || "Error fetching user data"
+            );
+          }
+        };
+        fetchUserData();
+      }
+    }, [id]);
 
   return (
     <>
       <section className="sidebar flex flex-col justify-between h-full">
         <div className="profile flex items-center text-center justify-center gap-8 flex-col mb-8">
-          <img src={User1} alt="" className="w-32 h-32 rounded-full object-cover" />
+          <img src={formData.profile_picture} alt="" className="w-32 h-32 rounded-full object-cover" />
           <div>
-            <Title className="capitalize">Sunil B.K</Title>
-            <Caption>example@gmail.com</Caption>
+            <Title className="capitalize">{formData.name}</Title>
+            <Caption>{formData.email}</Caption>
           </div>
         </div>
-
         <div>
           <CustomNavLink href="/dashboard" isActive={location.pathname === "/dashboard"} className={className}>
             <span>
               <CiGrid41 size={22} />
             </span>
-            <span>Dashbaord</span>
+            <span>Dashboard</span>
           </CustomNavLink>
 
           {(role === "seller" || role === "admin") && (
@@ -93,12 +130,12 @@ export const Sidebar = () => {
             </span>
             <span>Winning Bids</span>
           </CustomNavLink>
-          <CustomNavLink href="/favorites" isActive={location.pathname === "/favorites"} className={className}>
+          {/* <CustomNavLink href="/favorites" isActive={location.pathname === "/favorites"} className={className}>
             <span>
               <IoIosHeartEmpty size={22} />
             </span>
             <span>My Favorites</span>
-          </CustomNavLink>
+          </CustomNavLink> */}
           <CustomNavLink href="/profile" isActive={location.pathname === "/profile"} className={className}>
             <span>
               <IoSettingsOutline size={22} />
@@ -106,7 +143,7 @@ export const Sidebar = () => {
             <span>Personal Profile</span>
           </CustomNavLink>
 
-          <button className="flex items-center w-full gap-3 mt-4 bg-red-500 mb-3 hover:text-white p-4 rounded-full text-white">
+          <button onClick={handleLogout}  className="flex items-center w-full gap-3 mt-4 bg-red-500 mb-3 hover:text-white p-4 rounded-full text-white">
             <span>
               <IoIosLogOut size={22} />
             </span>

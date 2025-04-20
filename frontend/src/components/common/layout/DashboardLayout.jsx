@@ -2,7 +2,7 @@ import { Sidebar } from "../../admin/Sidebar";
 import { Container } from "../Design";
 
 export const DashboardLayout = ({ children }) => {
-  const role = "admin";
+  const role = localStorage.getItem("role");
 
   return (
     <>

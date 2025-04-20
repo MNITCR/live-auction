@@ -18,12 +18,13 @@ export { Home } from "../screens/home/Home";
 export { Dashboard } from "../screens/dashboard/Dashboard";
 export { AdminProductList } from "../admin/product/AdminProductList";
 export { UpdateProductByAdmin } from "../admin/product/UpdateProductByAdmin";
+export { ViewProductByAdmin } from "../admin/product/ViewProductByAdmin";
 export { Income } from "../admin/Income";
 
 //Category  Routes
 export { CreateCategory } from "../admin/category/CreateCategory";
 export { UpdateCategory } from "../admin/category/UpdateCategory";
-export { Catgeorylist } from "../admin/category/Catgeorylist";
+export { CategoryList } from "../admin/category/Catgeorylist";
 
 //Product Routes
 export { ProductsDetailsPage } from "../screens/product/ProductsDetailsPage";

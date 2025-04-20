@@ -1,0 +1,10 @@
+Django
+djangorestframework
+mysqlclient
+django-cors-headers
+channels
+daphne
+
+# daphne backend.asgi:application
+# daphne -b 127.0.0.1 -p 8000 backend.asgi:application
+

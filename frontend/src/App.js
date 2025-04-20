@@ -8,8 +8,9 @@ import {
   Layout,
   CreateCategory,
   UpdateCategory,
-  Catgeorylist,
+  CategoryList,
   UpdateProductByAdmin,
+  ViewProductByAdmin,
   AdminProductList,
   Income,
   Dashboard,
@@ -19,10 +20,10 @@ import {
   ProductsDetailsPage,
   Home,
   UserList,
-  WinningBidList,
   NotFound,
   ScrollToTop,
   PrivateRoute,
+  WinningBidList,
 } from "./router/index.js";
 
 function App() {
@@ -158,6 +159,18 @@ function App() {
             }
           />
           <Route
+            path="/product/admin/view/:id"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <DashboardLayout>
+                    <ViewProductByAdmin />
+                  </DashboardLayout>
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/userlist"
             element={
               <PrivateRoute>
@@ -194,12 +207,24 @@ function App() {
             }
           />
           <Route
+            path="/profile/:id"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <DashboardLayout>
+                    <UserProfile />
+                  </DashboardLayout>
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/category"
             element={
               <PrivateRoute>
                 <Layout>
                   <DashboardLayout>
-                    <Catgeorylist />
+                    <CategoryList />
                   </DashboardLayout>
                 </Layout>
               </PrivateRoute>
